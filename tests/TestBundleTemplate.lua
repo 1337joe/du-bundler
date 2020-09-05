@@ -141,6 +141,14 @@ function _G.TestBundleTemplate.testGetTagReplacementKey()
     expected = "1"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
+
+    -- verify capitalization is ignored
+    tag = "Key"
+    bundler = _G.BundleTemplate:new()
+    json = [[${key}]]
+    expected = "0"
+    actual = bundler:getTagReplacement(json, tag)
+    lu.assertEquals(actual, expected)
 end
 
 function _G.TestBundleTemplate.testMapSlotValues()
@@ -258,6 +266,22 @@ function _G.TestBundleTemplate.testGetTagReplacementArgs()
     tag = "args:*"
     json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}]]
     expected = '{"variable":"*"}'
+    actual = bundler:getTagReplacement(json, tag)
+    lu.assertEquals(actual, expected)
+
+    -- single value argument
+    bundler = _G.BundleTemplate:new()
+    tag = "args:variableName"
+    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}]]
+    expected = '{"value":"variableName"}'
+    actual = bundler:getTagReplacement(json, tag)
+    lu.assertEquals(actual, expected)
+
+    -- single value argument with capitalized tag to ensure variable name isn't lowercased during parsing
+    bundler = _G.BundleTemplate:new()
+    tag = "ARGS:variableName"
+    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}]]
+    expected = '{"value":"variableName"}'
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
 

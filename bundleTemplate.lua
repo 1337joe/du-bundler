@@ -107,7 +107,7 @@ local TAG_FILE = "file"
 local TAG_ARGUMENT_PATTERN = "(%S+)%s*:%s*(.*)"
 function BundleTemplate:getTagReplacement(fileContents, tag)
     -- tags without arguments
-    if tag == TAG_KEY then
+    if string.lower(tag) == TAG_KEY then
         if not self.usedKeys then
             self.usedKeys = BundleTemplate.getUsedHandlerKeys(fileContents)
         end
@@ -118,6 +118,10 @@ function BundleTemplate:getTagReplacement(fileContents, tag)
 
     -- tags with arguments
     local keyword, argument = string.match(tag, TAG_ARGUMENT_PATTERN)
+    if keyword then
+        keyword = string.lower(keyword)
+    end
+
     if keyword == TAG_SLOT then
         if not self.slotMap then
             self.slotMap = BundleTemplate.mapSlotValues(fileContents)
