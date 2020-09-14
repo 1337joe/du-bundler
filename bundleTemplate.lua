@@ -7,6 +7,12 @@
 local BundleTemplate = {}
 _G.BundleTemplate = BundleTemplate
 
+local TAG_KEY = "key"
+local TAG_SLOT_KEY = "slotkey"
+local TAG_SLOT_NAME = "slotname"
+local TAG_ARGS = "args"
+local TAG_FILE = "file"
+
 function BundleTemplate:new(templateFile)
     local o = {}
     setmetatable(o, self)
@@ -18,6 +24,10 @@ function BundleTemplate:new(templateFile)
     else
         o.template = ""
         o.path = ""
+    end
+
+    if not o.path or string.len(o.path) == 0 then
+        o.path = "./"
     end
 
     return o
@@ -32,6 +42,18 @@ function BundleTemplate.sanitizeCode(code)
     return sanitized
 end
 
+function BundleTemplate.sanitizeSubText(text)
+    local sanitized = text
+    sanitized = string.gsub(sanitized, "%-", "%%-")
+    return sanitized
+end
+
+function BundleTemplate.sanitizeSubReplace(text)
+    local sanitized = text
+    sanitized = string.gsub(sanitized, "%%", "%%%%")
+    return sanitized
+end
+
 -- get sanitized file text
 function BundleTemplate:getSanitizedFile(fileName)
     -- look for inputFile relative to template path
@@ -41,10 +63,10 @@ function BundleTemplate:getSanitizedFile(fileName)
     if not inputHandle then
         error("File not found: "..templateContentFile)
     end
-    local fileContents = io.input(inputHandle):read("*all")
+    local inputFileContents = io.input(inputHandle):read("*all")
     inputHandle:close()
 
-    return BundleTemplate.sanitizeCode(fileContents)
+    return BundleTemplate.sanitizeCode(inputFileContents)
 end
 
 --- Create the formatted string of argument definitions.
@@ -66,12 +88,32 @@ end
 
 --- Extract slot numbers.
 local SLOT_PATTERN = '"(-?%d)":{"name":"([a-zA-Z0-9 ]+)"'
-function BundleTemplate.mapSlotValues(jsonText)
-    local slotMapping = {}
+function BundleTemplate:mapSlotValues(jsonText)
+    self.slotNameNumberMap = {}
+    self.slotNumberNameMap = {}
     for slotNumber,slotName in string.gmatch(jsonText, SLOT_PATTERN) do
-        slotMapping[slotName] = slotNumber
+        self.slotNameNumberMap[slotName] = slotNumber
+        self.slotNumberNameMap[slotNumber] = slotName
     end
-    return slotMapping
+end
+
+local HANDLER_PATTERN_SLOT_KEY = [[
+{"code":"(.-)","filter":{"args":%[.-%],"signature":"[%w()]+","slotKey":"([%w${: ]+)}?"},"key":"[%d${key}]+"}]]
+local SLOT_KEY_TAG_PATTERN = "${"..TAG_SLOT_KEY.."%s*:%s*"
+function BundleTemplate:findSlotName(jsonText)
+    for slotCode,slotKey in string.gmatch(jsonText, HANDLER_PATTERN_SLOT_KEY) do
+        -- act on first instance that includes the slot name tag in the code block
+        if string.find(slotCode, "${"..TAG_SLOT_NAME.."}") then
+            local slotNumber
+            local _, slotKeyTagEnd = string.find(string.lower(slotKey), SLOT_KEY_TAG_PATTERN)
+            if slotKeyTagEnd then
+                slotNumber = string.sub(slotKey, slotKeyTagEnd + 1)
+            else
+                slotNumber = self.slotNumberNameMap[slotKey]
+            end
+            return slotNumber
+        end
+    end
 end
 
 --- Extract used handler keys.
@@ -98,11 +140,6 @@ function BundleTemplate:getNextHandlerKey()
     return nextKey
 end
 
-local TAG_KEY = "key"
-local TAG_SLOT = "slot"
-local TAG_ARGS = "args"
-local TAG_FILE = "file"
-
 --- Process a tag.
 local TAG_ARGUMENT_PATTERN = "(%S+)%s*:%s*(.*)"
 function BundleTemplate:getTagReplacement(fileContents, tag)
@@ -114,6 +151,11 @@ function BundleTemplate:getTagReplacement(fileContents, tag)
         local nextKey
         nextKey = self:getNextHandlerKey()
         return nextKey
+    elseif string.lower(tag) == TAG_SLOT_NAME then
+        if not self.slotNumberNameMap then
+            self:mapSlotValues(fileContents)
+        end
+        return self:findSlotName(fileContents)
     end
 
     -- tags with arguments
@@ -122,11 +164,11 @@ function BundleTemplate:getTagReplacement(fileContents, tag)
         keyword = string.lower(keyword)
     end
 
-    if keyword == TAG_SLOT then
-        if not self.slotMap then
-            self.slotMap = BundleTemplate.mapSlotValues(fileContents)
+    if keyword == TAG_SLOT_KEY then
+        if not self.slotNameNumberMap then
+            self:mapSlotValues(fileContents)
         end
-        return self.slotMap[argument]
+        return self.slotNameNumberMap[argument]
     elseif keyword == TAG_ARGS then
         return BundleTemplate.buildArgs(argument)
     elseif keyword == TAG_FILE then
@@ -135,8 +177,23 @@ function BundleTemplate:getTagReplacement(fileContents, tag)
     return ""
 end
 
---- Replace all tags with the appropriate values.
+--- Replace the next tag with the appropriate value.
 local TAG_PATTERN = "${(.-)}"
+function BundleTemplate:replaceTag(fileContents)
+    local tag = string.match(fileContents, TAG_PATTERN)
+
+    local toReplace = BundleTemplate.sanitizeSubText("${"..tag.."}")
+    local replace = self:getTagReplacement(fileContents, tag)
+    replace = BundleTemplate.sanitizeSubReplace(replace)
+    local count
+    fileContents, count = string.gsub(fileContents, toReplace, replace, 1)
+    if count ~= 1 then
+        error("Failed to replace: "..toReplace)
+    end
+    return fileContents
+end
+
+--- Replace all tags with the appropriate values.
 function BundleTemplate:processTemplate()
     -- look for inputFile relative to current working directory
     -- read content
@@ -149,10 +206,7 @@ function BundleTemplate:processTemplate()
 
     -- recursively find tags to replace
     while string.find(fileContents, TAG_PATTERN) do
-        local tag = string.match(fileContents, TAG_PATTERN)
-
-        local replace = self:getTagReplacement(fileContents, tag)
-        fileContents = string.gsub(fileContents, "${"..tag.."}", replace, 1)
+        fileContents = self:replaceTag(fileContents)
     end
 
     return fileContents

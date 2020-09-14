@@ -110,7 +110,7 @@ function _G.TestBundleTemplate.testGetTagReplacementKey()
 
     -- full line
     bundler = _G.BundleTemplate:new()
-    json = [[{"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"${key}"}]]
+    json = [[{"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}]]
     expected = "0"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -118,15 +118,15 @@ function _G.TestBundleTemplate.testGetTagReplacementKey()
     -- multiple lines, multiple calls
     bundler = _G.BundleTemplate:new()
     json = [[
-        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"${key}"}
-        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"${key}"}
+        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
+        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
     ]]
     expected = "0"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
     json = [[
-        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}
-        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"${key}"}
+        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"0"}
+        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
     ]]
     expected = "1"
     actual = bundler:getTagReplacement(json, tag)
@@ -135,8 +135,8 @@ function _G.TestBundleTemplate.testGetTagReplacementKey()
     -- existing key on first call
     bundler = _G.BundleTemplate:new()
     json = [[
-        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}
-        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"${key}"}
+        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"0"}
+        {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
     ]]
     expected = "1"
     actual = bundler:getTagReplacement(json, tag)
@@ -162,7 +162,8 @@ function _G.TestBundleTemplate.testMapSlotValues()
         "-1":{"name":"unit","type":{"events":[],"methods":[]}},
     ]]
     expected = {slot9 = "8", slot10 = "9", unit = "-1"}
-    actual = bundler.mapSlotValues(json)
+    bundler:mapSlotValues(json)
+    actual = bundler.slotNameNumberMap
     lu.assertEquals(actual, expected)
 
     -- customized list, cover numbered slots and special slots
@@ -173,7 +174,8 @@ function _G.TestBundleTemplate.testMapSlotValues()
     ]]
     expected = {container = "9", unit = "-1"}
     expected["the core"] = "8"
-    actual = bundler.mapSlotValues(json)
+    bundler:mapSlotValues(json)
+    actual = bundler.slotNameNumberMap
     lu.assertEquals(actual, expected)
 end
 
@@ -183,7 +185,7 @@ function _G.TestBundleTemplate.testGetTagReplacementSlot()
 
     -- create lookup table and verify it's used
     bundler = _G.BundleTemplate:new()
-    tag = "slot:slot8"
+    tag = "slotKey:slot8"
     json = [[
         "7":{"name":"slot8","type":{"events":[],"methods":[]}},
         "8":{"name":"the core","type":{"events":[],"methods":[]}},
@@ -194,7 +196,7 @@ function _G.TestBundleTemplate.testGetTagReplacementSlot()
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
     -- verify uses cached slot names - can't look up again
-    tag = "slot:unit"
+    tag = "slotkey:unit"
     json = ""
     expected = "-1"
     actual = bundler:getTagReplacement(json, tag)
@@ -202,7 +204,7 @@ function _G.TestBundleTemplate.testGetTagReplacementSlot()
 
     -- verify tag parser handles spaces within argument while ignoring spaces around colon
     bundler = _G.BundleTemplate:new()
-    tag = "slot : the core"
+    tag = "slotkey : the core"
     json = [[
         "7":{"name":"slot8","type":{"events":[],"methods":[]}},
         "8":{"name":"the core","type":{"events":[],"methods":[]}},
@@ -256,7 +258,7 @@ function _G.TestBundleTemplate.testGetTagReplacementArgs()
     -- no args needed
     bundler = _G.BundleTemplate:new()
     tag = "args"
-    json = [[{"code":"code","filter":{"args":[${args}],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}]]
+    json = [[{"code":"code","filter":{"args":[${args}],"signature":"pressed()","slotKey":"${slotKey:s1}"},"key":"0"}]]
     expected = ""
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -264,7 +266,7 @@ function _G.TestBundleTemplate.testGetTagReplacementArgs()
     -- single wildcard argument
     bundler = _G.BundleTemplate:new()
     tag = "args:*"
-    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}]]
+    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slotKey:s1}"},"key":"0"}]]
     expected = '{"variable":"*"}'
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -272,7 +274,7 @@ function _G.TestBundleTemplate.testGetTagReplacementArgs()
     -- single value argument
     bundler = _G.BundleTemplate:new()
     tag = "args:variableName"
-    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}]]
+    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slotKey:s1}"},"key":"0"}]]
     expected = '{"value":"variableName"}'
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -280,7 +282,7 @@ function _G.TestBundleTemplate.testGetTagReplacementArgs()
     -- single value argument with capitalized tag to ensure variable name isn't lowercased during parsing
     bundler = _G.BundleTemplate:new()
     tag = "ARGS:variableName"
-    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slot:slot1}"},"key":"0"}]]
+    json = [[{"code":"code","filter":{"args":[${args:*}],"signature":"pressed()","slotKey":"${slotKey:s1}"},"key":"0"}]]
     expected = '{"value":"variableName"}'
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -342,9 +344,97 @@ function _G.TestBundleTemplate.testGetTagReplacementFile()
     bundler = _G.BundleTemplate:new("example/template.json")
     tag = "file:slot1.pressed1.lua"
     json = '{"code":"${file:slot1.pressed1.lua}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
-    expected = "pressedCount = pressedCount + 1\\nassert(slot1.getState() == 1) -- toggles before calling handlers\\nassert(pressedCount == 1) -- should only ever be called once, when the user presses the button"
+    expected = "pressedCount = pressedCount + 1\\nassert(slot1.getState() == 1) -- toggles before calling handlers\\n"..
+        "assert(pressedCount == 1) -- should only ever be called once, when the user presses the button"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
+end
+
+function _G.TestBundleTemplate.testFindSlotName()
+    local bundler = _G.BundleTemplate:new()
+    local json, expected, actual
+
+    -- basic case: has mapping for number
+    expected = "slot1"
+    bundler.slotNumberNameMap = {}
+    bundler.slotNumberNameMap["0"] = "slot1"
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"0"},"key":"${key}"},]]
+    actual = bundler:findSlotName(json)
+    lu.assertEquals(actual, expected)
+
+    -- simple case: has a slotkey tag with the name in it
+    expected = "slot1"
+    bundler.slotNumberNameMap = {}
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${slotkey:slot1}"},"key":"0"},]]
+    actual = bundler:findSlotName(json)
+    lu.assertEquals(actual, expected)
+
+    -- has a capitalized SlotKey tag with a case-sensitive name in it
+    expected = "Slot1"
+    bundler.slotNumberNameMap = {}
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${SlotKey:Slot1}"},"key":"0"},]]
+    actual = bundler:findSlotName(json)
+    lu.assertEquals(actual, expected)
+
+    -- has a capitalized SlotKey tag with a case-sensitive name in it with spaces
+    expected = "Slot1"
+    bundler.slotNumberNameMap = {}
+    json = [[
+        {"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${SlotKey :  Slot1}"},"key":"0"},]]
+    actual = bundler:findSlotName(json)
+    lu.assertEquals(actual, expected)
+end
+
+function _G.TestBundleTemplate.testConstructor()
+    local bundler, expected
+
+    -- path with filename
+    expected = "example/template.json"
+    bundler = _G.BundleTemplate:new(expected)
+    lu.assertEquals(bundler.template, expected)
+    lu.assertEquals(bundler.path, "example/")
+
+    -- path with simple filename
+    expected = "./template.json"
+    bundler = _G.BundleTemplate:new(expected)
+    lu.assertEquals(bundler.template, expected)
+    lu.assertEquals(bundler.path, "./")
+
+    -- filename without path - template in current working directory
+    expected = "template.json"
+    bundler = _G.BundleTemplate:new(expected)
+    lu.assertEquals(bundler.template, expected)
+    lu.assertEquals(bundler.path, "./")
+end
+
+--- Verify various special characters are handled in tag and replace text.
+function _G.TestBundleTemplate.testReplaceTag()
+    local bundler = _G.BundleTemplate:new()
+    local json, replaceText, expectedTag, actualTag, expectedResult, actualResult
+
+    -- replace tag handling with mock that returns a specific string
+    bundler.getTagReplacement = function(_, _, tag)
+        actualTag = tag
+        return replaceText
+    end
+
+    -- % in replace text
+    json = "${file:test}"
+    expectedTag = "file:test"
+    replaceText = "this has a % in it"
+    expectedResult = replaceText
+    actualResult = bundler:replaceTag(json)
+    lu.assertEquals(actualTag, expectedTag)
+    lu.assertEquals(actualResult, expectedResult)
+
+    -- - in file name
+    json = "${file:test-stuff}"
+    expectedTag = "file:test-stuff"
+    replaceText = "code goes here"
+    expectedResult = replaceText
+    actualResult = bundler:replaceTag(json)
+    lu.assertEquals(actualTag, expectedTag)
+    lu.assertEquals(actualResult, expectedResult)
 end
 
 os.exit(lu.LuaUnit.run())

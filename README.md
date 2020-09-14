@@ -30,11 +30,17 @@ Format: `${args: channel *}`
 
 The args tag will convert the listed arguments into a list json formatted arguments.
 
-#### SLOT
+#### SLOTKEY
 
-Format: `${slot: unit}`
+Format: `${slotkey: unit}`
 
-This tag converts slot name into slot number, to simplify mapping of code onto named slots. This belongs in: `"slotKey":"${slot: unit}"` in the json file.
+This tag converts slot name into slot number, to simplify mapping of code onto named slots. This belongs in: `"slotKey":"${slotkey: unit}"` in the json file.
+
+#### SLOTNAME
+
+Format: `${slotname}`
+
+This tag inserts the name of the slot that it's in. TODO more text
 
 #### KEY
 
