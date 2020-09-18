@@ -12,6 +12,7 @@ local TAG_SLOT_KEY = "slotkey"
 local TAG_SLOT_NAME = "slotname"
 local TAG_ARGS = "args"
 local TAG_FILE = "file"
+local TAG_CODE = "code"
 
 function BundleTemplate:new(templateFile)
     local o = {}
@@ -42,19 +43,23 @@ function BundleTemplate.sanitizeCode(code)
     return sanitized
 end
 
+--- Escape regex characters from the text to be replaced.
 function BundleTemplate.sanitizeSubText(text)
     local sanitized = text
     sanitized = string.gsub(sanitized, "%-", "%%-")
+    sanitized = string.gsub(sanitized, "%(", "%%(")
+    sanitized = string.gsub(sanitized, "%)", "%%)")
     return sanitized
 end
 
+--- Escape regex characters from the text to be filled in.
 function BundleTemplate.sanitizeSubReplace(text)
     local sanitized = text
     sanitized = string.gsub(sanitized, "%%", "%%%%")
     return sanitized
 end
 
--- get sanitized file text
+--- Get the sanitized contents of a file.
 function BundleTemplate:getSanitizedFile(fileName)
     -- look for inputFile relative to template path
     local templateContentFile = self.path..fileName
@@ -173,6 +178,8 @@ function BundleTemplate:getTagReplacement(fileContents, tag)
         return BundleTemplate.buildArgs(argument)
     elseif keyword == TAG_FILE then
         return self:getSanitizedFile(argument)
+    elseif keyword == TAG_CODE then
+        return BundleTemplate.sanitizeCode(argument)
     end
     return ""
 end

@@ -437,4 +437,33 @@ function _G.TestBundleTemplate.testReplaceTag()
     lu.assertEquals(actualResult, expectedResult)
 end
 
+--- Verify code replacement works properly.
+function _G.TestBundleTemplate.testCodeTag()
+    local bundler = _G.BundleTemplate:new()
+    local json, actual, expected
+
+    -- no changes to sanitize code
+    json = [[${code: local test = 1}]]
+    expected = [[local test = 1]]
+    actual = bundler:replaceTag(json)
+    lu.assertEquals(actual, expected)
+
+    -- minimal changes: escape quotes
+    json = [[${code: system.print("hello world")}]]
+    expected = [[system.print(\"hello world\")]]
+    actual = bundler:replaceTag(json)
+    lu.assertEquals(actual, expected)
+
+    -- multi-line code
+    json = [[${code:
+-- slot assignments
+slots.databank = slot1
+slots.databank2 = slot10
+}]]
+    expected = [[-- slot assignments\nslots.databank = slot1\nslots.databank2 = slot10\n]]
+    actual = bundler:replaceTag(json)
+    lu.assertEquals(actual, expected)
+
+end
+
 os.exit(lu.LuaUnit.run())

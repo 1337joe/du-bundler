@@ -47,3 +47,9 @@ This tag inserts the name of the slot that it's in. TODO more text
 Format: `${key}`
 
 There is no argument necessary for this tag, it simply picks the next sequential (and unused) handler key value. It goes in the `"key":"${key}"` section of the json for handler references.
+
+#### CODE
+
+Format: `${code: <lua goes here>}`
+
+Code can be embedded directly in the template file using the code tag, for the cases where the code for a handler is simple and/or specific to the specific template where it's being used. Closing braces currently cannot be embedded in code blocks because it interferes with the regex matching for the tag itself.
