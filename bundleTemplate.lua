@@ -26,7 +26,6 @@ function BundleTemplate:new(templateFile)
         o.template = ""
         o.path = ""
     end
-
     if not o.path or string.len(o.path) == 0 then
         o.path = "./"
     end
@@ -49,6 +48,7 @@ function BundleTemplate.sanitizeSubText(text)
     sanitized = string.gsub(sanitized, "%-", "%%-")
     sanitized = string.gsub(sanitized, "%(", "%%(")
     sanitized = string.gsub(sanitized, "%)", "%%)")
+    sanitized = string.gsub(sanitized, "%*", "%%*")
     return sanitized
 end
 
@@ -102,8 +102,7 @@ function BundleTemplate:mapSlotValues(jsonText)
     end
 end
 
-local HANDLER_PATTERN_SLOT_KEY = [[
-{"code":"(.-)","filter":{"args":%[.-%],"signature":"[%w()]+","slotKey":"([%w${: ]+)}?"},"key":"[%d${key}]+"}]]
+local HANDLER_PATTERN_SLOT_KEY = '"code":"(.-)","filter":{"args":%[.-%],"signature":"[%w()]+","slotKey":"([%w${: -]+)}?"},"key":"[%d${key}]+"}'
 local SLOT_KEY_TAG_PATTERN = "${"..TAG_SLOT_KEY.."%s*:%s*"
 function BundleTemplate:findSlotName(jsonText)
     for slotCode,slotKey in string.gmatch(jsonText, HANDLER_PATTERN_SLOT_KEY) do
@@ -119,6 +118,7 @@ function BundleTemplate:findSlotName(jsonText)
             return slotNumber
         end
     end
+    error("Failed to find "..TAG_SLOT_NAME.." tag.")
 end
 
 --- Extract used handler keys.
@@ -153,9 +153,7 @@ function BundleTemplate:getTagReplacement(fileContents, tag)
         if not self.usedKeys then
             self.usedKeys = BundleTemplate.getUsedHandlerKeys(fileContents)
         end
-        local nextKey
-        nextKey = self:getNextHandlerKey()
-        return nextKey
+        return self:getNextHandlerKey()
     elseif string.lower(tag) == TAG_SLOT_NAME then
         if not self.slotNumberNameMap then
             self:mapSlotValues(fileContents)

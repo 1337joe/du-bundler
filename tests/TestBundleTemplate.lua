@@ -358,21 +358,29 @@ function _G.TestBundleTemplate.testFindSlotName()
     expected = "slot1"
     bundler.slotNumberNameMap = {}
     bundler.slotNumberNameMap["0"] = "slot1"
-    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"0"},"key":"${key}"},]]
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"0"},"key":"${key}"}]]
+    actual = bundler:findSlotName(json)
+    lu.assertEquals(actual, expected)
+
+    -- basic case: has mapping for negative number
+    expected = "unit"
+    bundler.slotNumberNameMap = {}
+    bundler.slotNumberNameMap["-1"] = "unit"
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"-1"},"key":"${key}"}]]
     actual = bundler:findSlotName(json)
     lu.assertEquals(actual, expected)
 
     -- simple case: has a slotkey tag with the name in it
     expected = "slot1"
     bundler.slotNumberNameMap = {}
-    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${slotkey:slot1}"},"key":"0"},]]
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${slotkey:slot1}"},"key":"0"}]]
     actual = bundler:findSlotName(json)
     lu.assertEquals(actual, expected)
 
     -- has a capitalized SlotKey tag with a case-sensitive name in it
     expected = "Slot1"
     bundler.slotNumberNameMap = {}
-    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${SlotKey:Slot1}"},"key":"0"},]]
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${SlotKey:Slot1}"},"key":"0"}]]
     actual = bundler:findSlotName(json)
     lu.assertEquals(actual, expected)
 
@@ -380,7 +388,17 @@ function _G.TestBundleTemplate.testFindSlotName()
     expected = "Slot1"
     bundler.slotNumberNameMap = {}
     json = [[
-        {"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${SlotKey :  Slot1}"},"key":"0"},]]
+        {"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${SlotKey :  Slot1}"},"key":"0"}]]
+    actual = bundler:findSlotName(json)
+    lu.assertEquals(actual, expected)
+
+    -- two handlers, has a slotkey tag with the name in it
+    expected = "slot1"
+    bundler.slotNumberNameMap = {}
+    json = [[
+        {"code":"pressedCount = pressedCount + 1","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"},
+        {"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${slotkey:slot1}"},"key":"0"}
+    ]]
     actual = bundler:findSlotName(json)
     lu.assertEquals(actual, expected)
 end
@@ -431,6 +449,15 @@ function _G.TestBundleTemplate.testReplaceTag()
     json = "${file:test-stuff}"
     expectedTag = "file:test-stuff"
     replaceText = "code goes here"
+    expectedResult = replaceText
+    actualResult = bundler:replaceTag(json)
+    lu.assertEquals(actualTag, expectedTag)
+    lu.assertEquals(actualResult, expectedResult)
+
+    -- * in replace text
+    json = "${args:*}"
+    expectedTag = "args:*"
+    replaceText = '{"variable":"*"}'
     expectedResult = replaceText
     actualResult = bundler:replaceTag(json)
     lu.assertEquals(actualTag, expectedTag)
