@@ -491,6 +491,11 @@ slots.databank2 = slot10
     actual = bundler:replaceTag(json)
     lu.assertEquals(actual, expected)
 
+    -- colon in code block
+    json = [[${code:_G.agController:updateState()}]]
+    expected = [[_G.agController:updateState()]]
+    actual = bundler:replaceTag(json)
+    lu.assertEquals(actual, expected)
 end
 
 os.exit(lu.LuaUnit.run())

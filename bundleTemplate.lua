@@ -146,7 +146,7 @@ function BundleTemplate:getNextHandlerKey()
 end
 
 --- Process a tag.
-local TAG_ARGUMENT_PATTERN = "(%S+)%s*:%s*(.*)"
+local TAG_ARGUMENT_PATTERN = "(%S-)%s*:%s*(.*)"
 function BundleTemplate:getTagReplacement(fileContents, tag)
     -- tags without arguments
     if string.lower(tag) == TAG_KEY then
