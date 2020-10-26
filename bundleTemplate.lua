@@ -161,6 +161,9 @@ function BundleTemplate:findSlotName(jsonText)
             else
                 slotNumber = self.slotNumberNameMap[slotKey]
             end
+            if not slotNumber then
+                error("Failed to find slot name mapping for slot key: " .. slotKey)
+            end
             return slotNumber
         end
     end
@@ -217,7 +220,11 @@ function BundleTemplate:getTagReplacement(fileContents, tag)
         if not self.slotNameNumberMap then
             self:mapSlotValues(fileContents)
         end
-        return self.slotNameNumberMap[argument]
+        local number = self.slotNameNumberMap[argument]
+        if not number then
+            error("Slot number for slot '" .. argument .. "' not found.")
+        end
+        return number
     elseif keyword == TAG_ARGS then
         return BundleTemplate.buildArgs(argument)
     elseif keyword == TAG_FILE then

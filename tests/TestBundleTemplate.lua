@@ -214,6 +214,14 @@ function _G.TestBundleTemplate.testGetTagReplacementSlot()
     expected = "8"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
+
+    -- useful error thrown on missing slot mapping
+    bundler = _G.BundleTemplate:new()
+    tag = "slotKey:slot8"
+    json = [[
+        "-1":{"name":"unit","type":{"events":[],"methods":[]}},
+    ]]
+    lu.assertErrorMsgContains("slot8", bundler.getTagReplacement, bundler, json, tag)
 end
 
 function _G.TestBundleTemplate.testBuildArgs()
@@ -517,6 +525,12 @@ function _G.TestBundleTemplate.testFindSlotName()
     ]]
     actual = bundler:findSlotName(json)
     lu.assertEquals(actual, expected)
+
+    -- slot name not found
+    bundler.slotNumberNameMap = {}
+    json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"0"},"key":"${key}"}]]
+    -- check for slot key
+    lu.assertErrorMsgContains("0", bundler.findSlotName, bundler, json)
 end
 
 function _G.TestBundleTemplate.testConstructor()
