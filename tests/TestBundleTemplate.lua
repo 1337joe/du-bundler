@@ -336,6 +336,84 @@ system.print(var)]]
     lu.assertEquals(actual, expected)
 end
 
+--- Verify markup minifier removes characters appropriately.
+function _G.TestBundleTemplate.testMinifyMarkup()
+    local bundler = _G.BundleTemplate:new()
+    local markup, expected, actual
+
+    -- trailing space before tag closing
+    markup = [[<line x1="0" y1="108" x2="1920" y2="108" />]]
+    expected = [[<line x1="0" y1="108" x2="1920" y2="108"/>]]
+    actual = bundler.minifyMarkup(markup)
+    lu.assertEquals(actual, expected)
+    markup = [[<g id="panel" >]]
+    expected = [[<g id="panel">]]
+    actual = bundler.minifyMarkup(markup)
+    lu.assertEquals(actual, expected)
+
+    -- whitespace/newlines between tags
+    markup = [[<line x1="0" y1="0" x2="1920" y2="0"/>
+    <line x1="0" y1="108" x2="1920" y2="108"/>]]
+    expected = [[<line x1="0" y1="0" x2="1920" y2="0"/><line x1="0" y1="108" x2="1920" y2="108"/>]]
+    actual = bundler.minifyMarkup(markup)
+    lu.assertEquals(actual, expected)
+
+    -- embedded style element
+    markup = [[style="font-style : normal ; fill : #bbbbbb ; "]]
+    expected = [[style="font-style:normal;fill:#bbbbbb;"]]
+    actual = bundler.minifyMarkup(markup)
+    lu.assertEquals(actual, expected)
+
+    -- comment
+    markup = [[<div><!-- comment block --></div>]]
+    expected = [[<div></div>]]
+    actual = bundler.minifyMarkup(markup)
+    lu.assertEquals(actual, expected)
+
+    -- comment isn't too greedy
+    markup = [[<div><!-- comment block -->text<!-- comment block --></div>]]
+    expected = [[<div>text</div>]]
+    actual = bundler.minifyMarkup(markup)
+    lu.assertEquals(actual, expected)
+end
+
+--- Verify css minifier removes characters appropriately.
+function _G.TestBundleTemplate.testMinifyCss()
+    local bundler = _G.BundleTemplate:new()
+    local css, expected, actual
+
+    -- whitespace/newlines between elements
+    css = [[text {
+        text-transform:none;
+        font-family:helvetica;
+        font-weight:normal;
+    }]]
+    expected = [[text{text-transform:none;font-family:helvetica;font-weight:normal;}]]
+    actual = bundler.minifyCss(css)
+    lu.assertEquals(actual, expected)
+
+    -- whitespace around colons
+    css = [[text{text-transform : none;font-family : helvetica;font-weight : normal;}]]
+    expected = [[text{text-transform:none;font-family:helvetica;font-weight:normal;}]]
+    actual = bundler.minifyCss(css)
+    lu.assertEquals(actual, expected)
+
+    -- whitespace before brace
+    css = [[text {text-transform:none;font-family:helvetica;font-weight:normal;}]]
+    expected = [[text{text-transform:none;font-family:helvetica;font-weight:normal;}]]
+    actual = bundler.minifyCss(css)
+    lu.assertEquals(actual, expected)
+
+    -- whitespace around tags
+    css = [[
+        text {text-transform:none;}
+        .widgetBackground {opacity:0.1;}
+    ]]
+    expected = [[text{text-transform:none;}.widgetBackground{opacity:0.1;}]]
+    actual = bundler.minifyCss(css)
+    lu.assertEquals(actual, expected)
+end
+
 function _G.TestBundleTemplate.testGetTagReplacementFile()
     local bundler
     local json, tag, expected, actual
@@ -346,6 +424,44 @@ function _G.TestBundleTemplate.testGetTagReplacementFile()
     json = '{"code":"${file:slot1.pressed1.lua}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
     expected = "pressedCount = pressedCount + 1\\nassert(slot1.getState() == 1) -- toggles before calling handlers\\n"..
         "assert(pressedCount == 1) -- should only ever be called once, when the user presses the button"
+    actual = bundler:getTagReplacement(json, tag)
+    lu.assertEquals(actual, expected)
+
+    -- non-minified svg
+    bundler = _G.BundleTemplate:new("example/template.json")
+    tag = "file:image.svg"
+    json = '{"code":"${file:image.svg}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
+    expected = "<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" version=\\\"1.1\\\" viewBox=\\\"0 0 3200 3200\\\" >\\n"..
+        "  <text id=\\\"label\\\" y=\\\"3600\\\" x=\\\"100\\\" style=\\\"font-size:800px;\\\"   >Text</text>\\n"..
+        "</svg>"
+    actual = bundler:getTagReplacement(json, tag)
+    lu.assertEquals(actual, expected)
+
+    -- minified svg
+    bundler = _G.BundleTemplate:new("example/template.json")
+    tag = "file:image.svg minify"
+    json = '{"code":"${file:image.svg minify}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
+    expected = "<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" version=\\\"1.1\\\" viewBox=\\\"0 0 3200 3200\\\">"..
+        "<text id=\\\"label\\\" y=\\\"3600\\\" x=\\\"100\\\" style=\\\"font-size:800px;\\\">Text</text>"..
+        "</svg>"
+    actual = bundler:getTagReplacement(json, tag)
+    lu.assertEquals(actual, expected)
+
+    -- non-minified css
+    bundler = _G.BundleTemplate:new("example/template.json")
+    tag = "file:style.css"
+    json = '{"code":"${file:style.css}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
+    expected = "\\ntext {\\n    text-transform: none;\\n    font-family: helvetica;\\n    font-weight: normal;\\n}"..
+        "\\n.widgetBackground {\\n    opacity: 0.1;\\n    fill: #222222;\\n}\\n"
+    actual = bundler:getTagReplacement(json, tag)
+    lu.assertEquals(actual, expected)
+
+    -- minified css
+    bundler = _G.BundleTemplate:new("example/template.json")
+    tag = "file:style.css minify"
+    json = '{"code":"${file:style.css minify}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
+    expected = "text{text-transform:none;font-family:helvetica;font-weight:normal;}"..
+        ".widgetBackground{opacity:0.1;fill:#222222;}"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
 end

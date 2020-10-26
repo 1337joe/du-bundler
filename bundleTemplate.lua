@@ -59,8 +59,48 @@ function BundleTemplate.sanitizeSubReplace(text)
     return sanitized
 end
 
+--- Remove unnecessary characters from markup files (html, svg, xml).
+local STYLE_TAG_PATTERN = "<style>(.-)</style>"
+local STYLE_ATTRIBUTE_PATTERN = "style=\"(.-)\""
+function BundleTemplate.minifyMarkup(text)
+    local minified = text
+    minified = string.gsub(minified, "<!%-%-.-%-%->", "") -- remove comments
+    minified = string.gsub(minified, "%s+(/?)>", "%1>") -- remove spaces before element close
+    minified = string.gsub(minified, ">[%s%c]*<", "><") -- collapse line breaks and spaces between tags
+    for styleContents in string.gmatch(minified, STYLE_TAG_PATTERN) do
+        minified = string.gsub(minified, BundleTemplate.sanitizeSubText(styleContents), BundleTemplate.minifyCss(styleContents))
+    end
+    for styleContents in string.gmatch(minified, STYLE_ATTRIBUTE_PATTERN) do
+        minified = string.gsub(minified, BundleTemplate.sanitizeSubText(styleContents), BundleTemplate.minifyCss(styleContents))
+    end
+    return minified
+end
+
+--- Remove unnecessary characters from css files and tags.
+function BundleTemplate.minifyCss(text)
+    local minified = text
+    minified = string.gsub(minified, "^[%s%c]*", "") -- collapse leading whitespace
+    minified = string.gsub(minified, "[%s%c]*;[%s%c]*", ";") -- collapse line breaks and spaces between elements
+    minified = string.gsub(minified, "[%s%c]*:[%s%c]*", ":") -- collapse line breaks and spaces between key and value
+    minified = string.gsub(minified, "[%s%c]*{[%s%c]*", "{") -- collapse space around brace open
+    minified = string.gsub(minified, "[%s%c]*}[%s%c]*", "}") -- collapse space around brace close
+    return minified
+end
+
 --- Get the sanitized contents of a file.
-function BundleTemplate:getSanitizedFile(fileName)
+local MINIFY_ARGUMENT = "minify"
+function BundleTemplate:getSanitizedFile(arguments)
+
+    local fileName = nil
+    local minify = false
+    for argValue in string.gmatch(arguments, "[^,%s]+") do
+        if not fileName then
+            fileName = argValue
+        elseif string.lower(argValue) == MINIFY_ARGUMENT then
+            minify = true
+        end
+    end
+
     -- look for inputFile relative to template path
     local templateContentFile = self.path..fileName
     -- read content
@@ -70,6 +110,12 @@ function BundleTemplate:getSanitizedFile(fileName)
     end
     local inputFileContents = io.input(inputHandle):read("*all")
     inputHandle:close()
+
+    if minify and string.match(string.lower(fileName), "svg$") then
+        inputFileContents = BundleTemplate.minifyMarkup(inputFileContents)
+    elseif minify and string.match(string.lower(fileName), "css$") then
+        inputFileContents = BundleTemplate.minifyCss(inputFileContents)
+    end
 
     return BundleTemplate.sanitizeCode(inputFileContents)
 end

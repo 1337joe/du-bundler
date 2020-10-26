@@ -1,0 +1,10 @@
+
+text {
+    text-transform: none;
+    font-family: helvetica;
+    font-weight: normal;
+}
+.widgetBackground {
+    opacity: 0.1;
+    fill: #222222;
+}
