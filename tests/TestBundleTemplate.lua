@@ -17,7 +17,8 @@ function _G.TestBundleTemplate.testGetUsedHandlerKeys()
     local json, expected, actual
 
     -- single entry
-    json = [[
+    json =
+        [[
         {"code":"pressedCount = pressedCount + 1","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"1"}
     ]]
     expected = {}
@@ -26,7 +27,8 @@ function _G.TestBundleTemplate.testGetUsedHandlerKeys()
     lu.assertEquals(actual, expected)
 
     -- 6 sequential entries
-    json = [[
+    json =
+        [[
         {"code":"pressedCount = pressedCount + 1","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"},
         {"code":"pressedCount = pressedCount + 1","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"1"},
         {"code":"releasedCnt = releasedCnt + 1","filter":{"args":[],"signature":"released()","slotKey":"0"},"key":"2"},
@@ -45,7 +47,8 @@ function _G.TestBundleTemplate.testGetUsedHandlerKeys()
     lu.assertEquals(actual, expected)
 
     -- 5 non-sequential entries
-    json = [[
+    json =
+        [[
         {"code":"pressedCount = pressedCount + 1","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"},
         {"code":"pressedCount = pressedCount + 1","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"1"},
         {"code":"releasedCnt = releasedCnt + 1","filter":{"args":[],"signature":"released()","slotKey":"0"},"key":"2"},
@@ -117,14 +120,16 @@ function _G.TestBundleTemplate.testGetTagReplacementKey()
 
     -- multiple lines, multiple calls
     bundler = _G.BundleTemplate:new()
-    json = [[
+    json =
+        [[
         {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
         {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
     ]]
     expected = "0"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
-    json = [[
+    json =
+        [[
         {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"0"}
         {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
     ]]
@@ -134,7 +139,8 @@ function _G.TestBundleTemplate.testGetTagReplacementKey()
 
     -- existing key on first call
     bundler = _G.BundleTemplate:new()
-    json = [[
+    json =
+        [[
         {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"0"}
         {"code":"code","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"}
     ]]
@@ -156,7 +162,8 @@ function _G.TestBundleTemplate.testMapSlotValues()
     local json, expected, actual
 
     -- default list, cover numbered slots and special slots
-    json = [[
+    json =
+        [[
         "8":{"name":"slot9","type":{"events":[],"methods":[]}},
         "9":{"name":"slot10","type":{"events":[],"methods":[]}},
         "-1":{"name":"unit","type":{"events":[],"methods":[]}},
@@ -167,7 +174,8 @@ function _G.TestBundleTemplate.testMapSlotValues()
     lu.assertEquals(actual, expected)
 
     -- customized list, cover numbered slots and special slots
-    json = [[
+    json =
+        [[
         "8":{"name":"the core","type":{"events":[],"methods":[]}},
         "9":{"name":"container","type":{"events":[],"methods":[]}},
         "-1":{"name":"unit","type":{"events":[],"methods":[]}},
@@ -186,7 +194,8 @@ function _G.TestBundleTemplate.testGetTagReplacementSlot()
     -- create lookup table and verify it's used
     bundler = _G.BundleTemplate:new()
     tag = "slotKey:slot8"
-    json = [[
+    json =
+        [[
         "7":{"name":"slot8","type":{"events":[],"methods":[]}},
         "8":{"name":"the core","type":{"events":[],"methods":[]}},
         "9":{"name":"container","type":{"events":[],"methods":[]}},
@@ -205,7 +214,8 @@ function _G.TestBundleTemplate.testGetTagReplacementSlot()
     -- verify tag parser handles spaces within argument while ignoring spaces around colon
     bundler = _G.BundleTemplate:new()
     tag = "slotkey : the core"
-    json = [[
+    json =
+        [[
         "7":{"name":"slot8","type":{"events":[],"methods":[]}},
         "8":{"name":"the core","type":{"events":[],"methods":[]}},
         "9":{"name":"container","type":{"events":[],"methods":[]}},
@@ -430,7 +440,8 @@ function _G.TestBundleTemplate.testGetTagReplacementFile()
     bundler = _G.BundleTemplate:new("example/template.json")
     tag = "file:slot1.pressed1.lua"
     json = '{"code":"${file:slot1.pressed1.lua}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
-    expected = "pressedCount = pressedCount + 1\\nassert(slot1.getState() == 1) -- toggles before calling handlers\\n"..
+    expected =
+        "pressedCount = pressedCount + 1\\nassert(slot1.getState() == 1) -- toggles before calling handlers\\n" ..
         "assert(pressedCount == 1) -- should only ever be called once, when the user presses the button"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -439,9 +450,9 @@ function _G.TestBundleTemplate.testGetTagReplacementFile()
     bundler = _G.BundleTemplate:new("example/template.json")
     tag = "file:image.svg"
     json = '{"code":"${file:image.svg}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
-    expected = "<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" version=\\\"1.1\\\" viewBox=\\\"0 0 3200 3200\\\" >\\n"..
-        "  <text id=\\\"label\\\" y=\\\"3600\\\" x=\\\"100\\\" style=\\\"font-size:800px;\\\"   >Text</text>\\n"..
-        "</svg>"
+    expected =
+        '<svg xmlns=\\"http://www.w3.org/2000/svg\\" version=\\"1.1\\" viewBox=\\"0 0 3200 3200\\" >\\n' ..
+        '  <text id=\\"label\\" y=\\"3600\\" x=\\"100\\" style=\\"font-size:800px;\\"   >Text</text>\\n' .. "</svg>"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
 
@@ -449,9 +460,9 @@ function _G.TestBundleTemplate.testGetTagReplacementFile()
     bundler = _G.BundleTemplate:new("example/template.json")
     tag = "file:image.svg minify"
     json = '{"code":"${file:image.svg minify}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
-    expected = "<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" version=\\\"1.1\\\" viewBox=\\\"0 0 3200 3200\\\">"..
-        "<text id=\\\"label\\\" y=\\\"3600\\\" x=\\\"100\\\" style=\\\"font-size:800px;\\\">Text</text>"..
-        "</svg>"
+    expected =
+        '<svg xmlns=\\"http://www.w3.org/2000/svg\\" version=\\"1.1\\" viewBox=\\"0 0 3200 3200\\">' ..
+        '<text id=\\"label\\" y=\\"3600\\" x=\\"100\\" style=\\"font-size:800px;\\">Text</text>' .. "</svg>"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
 
@@ -459,7 +470,8 @@ function _G.TestBundleTemplate.testGetTagReplacementFile()
     bundler = _G.BundleTemplate:new("example/template.json")
     tag = "file:style.css"
     json = '{"code":"${file:style.css}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
-    expected = "\\ntext {\\n    text-transform: none;\\n    font-family: helvetica;\\n    font-weight: normal;\\n}"..
+    expected =
+        "\\ntext {\\n    text-transform: none;\\n    font-family: helvetica;\\n    font-weight: normal;\\n}" ..
         "\\n.widgetBackground {\\n    opacity: 0.1;\\n    fill: #222222;\\n}\\n"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -468,7 +480,8 @@ function _G.TestBundleTemplate.testGetTagReplacementFile()
     bundler = _G.BundleTemplate:new("example/template.json")
     tag = "file:style.css minify"
     json = '{"code":"${file:style.css minify}","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"}'
-    expected = "text{text-transform:none;font-family:helvetica;font-weight:normal;}"..
+    expected =
+        "text{text-transform:none;font-family:helvetica;font-weight:normal;}" ..
         ".widgetBackground{opacity:0.1;fill:#222222;}"
     actual = bundler:getTagReplacement(json, tag)
     lu.assertEquals(actual, expected)
@@ -511,7 +524,8 @@ function _G.TestBundleTemplate.testFindSlotName()
     -- has a capitalized SlotKey tag with a case-sensitive name in it with spaces
     expected = "Slot1"
     bundler.slotNumberNameMap = {}
-    json = [[
+    json =
+        [[
         {"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${SlotKey :  Slot1}"},"key":"0"}]]
     actual = bundler:findSlotName(json)
     lu.assertEquals(actual, expected)
@@ -519,7 +533,8 @@ function _G.TestBundleTemplate.testFindSlotName()
     -- two handlers, has a slotkey tag with the name in it
     expected = "slot1"
     bundler.slotNumberNameMap = {}
-    json = [[
+    json =
+        [[
         {"code":"pressedCount = pressedCount + 1","filter":{"args":[],"signature":"pressed()","slotKey":"0"},"key":"0"},
         {"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"${slotkey:slot1}"},"key":"0"}
     ]]

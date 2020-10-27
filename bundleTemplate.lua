@@ -37,7 +37,7 @@ end
 function BundleTemplate.sanitizeCode(code)
     local sanitized = code
     sanitized = string.gsub(sanitized, "\\", "\\\\")
-    sanitized = string.gsub(sanitized, "\"", "\\\"")
+    sanitized = string.gsub(sanitized, '"', '\\"')
     sanitized = string.gsub(sanitized, "%c", "\\n")
     return sanitized
 end
@@ -61,17 +61,27 @@ end
 
 --- Remove unnecessary characters from markup files (html, svg, xml).
 local STYLE_TAG_PATTERN = "<style>(.-)</style>"
-local STYLE_ATTRIBUTE_PATTERN = "style=\"(.-)\""
+local STYLE_ATTRIBUTE_PATTERN = 'style="(.-)"'
 function BundleTemplate.minifyMarkup(text)
     local minified = text
     minified = string.gsub(minified, "<!%-%-.-%-%->", "") -- remove comments
     minified = string.gsub(minified, "%s+(/?)>", "%1>") -- remove spaces before element close
     minified = string.gsub(minified, ">[%s%c]*<", "><") -- collapse line breaks and spaces between tags
     for styleContents in string.gmatch(minified, STYLE_TAG_PATTERN) do
-        minified = string.gsub(minified, BundleTemplate.sanitizeSubText(styleContents), BundleTemplate.minifyCss(styleContents))
+        minified =
+            string.gsub(
+            minified,
+            BundleTemplate.sanitizeSubText(styleContents),
+            BundleTemplate.minifyCss(styleContents)
+        )
     end
     for styleContents in string.gmatch(minified, STYLE_ATTRIBUTE_PATTERN) do
-        minified = string.gsub(minified, BundleTemplate.sanitizeSubText(styleContents), BundleTemplate.minifyCss(styleContents))
+        minified =
+            string.gsub(
+            minified,
+            BundleTemplate.sanitizeSubText(styleContents),
+            BundleTemplate.minifyCss(styleContents)
+        )
     end
     return minified
 end
@@ -90,7 +100,6 @@ end
 --- Get the sanitized contents of a file.
 local MINIFY_ARGUMENT = "minify"
 function BundleTemplate:getSanitizedFile(arguments)
-
     local fileName = nil
     local minify = false
     for argValue in string.gmatch(arguments, "[^,%s]+") do
@@ -102,11 +111,11 @@ function BundleTemplate:getSanitizedFile(arguments)
     end
 
     -- look for inputFile relative to template path
-    local templateContentFile = self.path..fileName
+    local templateContentFile = self.path .. fileName
     -- read content
     local inputHandle = io.open(templateContentFile, "rb")
     if not inputHandle then
-        error("File not found: "..templateContentFile)
+        error("File not found: " .. templateContentFile)
     end
     local inputFileContents = io.input(inputHandle):read("*all")
     inputHandle:close()
@@ -126,13 +135,13 @@ function BundleTemplate.buildArgs(handlerArgs)
     local formattedArgs = ""
     for argValue in string.gmatch(handlerArgs, "[^,%s]+") do
         if string.len(formattedArgs) > 0 then
-            formattedArgs = formattedArgs..","
+            formattedArgs = formattedArgs .. ","
         end
         local argLabel = "value"
         if argValue == "*" then
             argLabel = "variable"
         end
-        formattedArgs = formattedArgs..string.format(ARGS_FORMAT, argLabel, argValue)
+        formattedArgs = formattedArgs .. string.format(ARGS_FORMAT, argLabel, argValue)
     end
     return formattedArgs
 end
@@ -142,18 +151,19 @@ local SLOT_PATTERN = '"(-?%d)":{"name":"([a-zA-Z0-9 ]+)"'
 function BundleTemplate:mapSlotValues(jsonText)
     self.slotNameNumberMap = {}
     self.slotNumberNameMap = {}
-    for slotNumber,slotName in string.gmatch(jsonText, SLOT_PATTERN) do
+    for slotNumber, slotName in string.gmatch(jsonText, SLOT_PATTERN) do
         self.slotNameNumberMap[slotName] = slotNumber
         self.slotNumberNameMap[slotNumber] = slotName
     end
 end
 
-local HANDLER_PATTERN_SLOT_KEY = '"code":"(.-)","filter":{"args":%[.-%],"signature":"[%w()]+","slotKey":"([%w${: -]+)}?"},"key":"[%d${key}]+"}'
-local SLOT_KEY_TAG_PATTERN = "${"..TAG_SLOT_KEY.."%s*:%s*"
+local HANDLER_PATTERN_SLOT_KEY =
+    '"code":"(.-)","filter":{"args":%[.-%],"signature":"[%w()]+","slotKey":"([%w${: -]+)}?"},"key":"[%d${key}]+"}'
+local SLOT_KEY_TAG_PATTERN = "${" .. TAG_SLOT_KEY .. "%s*:%s*"
 function BundleTemplate:findSlotName(jsonText)
-    for slotCode,slotKey in string.gmatch(jsonText, HANDLER_PATTERN_SLOT_KEY) do
+    for slotCode, slotKey in string.gmatch(jsonText, HANDLER_PATTERN_SLOT_KEY) do
         -- act on first instance that includes the slot name tag in the code block
-        if string.find(slotCode, "${"..TAG_SLOT_NAME.."}") then
+        if string.find(slotCode, "${" .. TAG_SLOT_NAME .. "}") then
             local slotNumber
             local _, slotKeyTagEnd = string.find(string.lower(slotKey), SLOT_KEY_TAG_PATTERN)
             if slotKeyTagEnd then
@@ -167,7 +177,7 @@ function BundleTemplate:findSlotName(jsonText)
             return slotNumber
         end
     end
-    error("Failed to find "..TAG_SLOT_NAME.." tag.")
+    error("Failed to find " .. TAG_SLOT_NAME .. " tag.")
 end
 
 --- Extract used handler keys.
@@ -240,13 +250,13 @@ local TAG_PATTERN = "${(.-)}"
 function BundleTemplate:replaceTag(fileContents)
     local tag = string.match(fileContents, TAG_PATTERN)
 
-    local toReplace = BundleTemplate.sanitizeSubText("${"..tag.."}")
+    local toReplace = BundleTemplate.sanitizeSubText("${" .. tag .. "}")
     local replace = self:getTagReplacement(fileContents, tag)
     replace = BundleTemplate.sanitizeSubReplace(replace)
     local count
     fileContents, count = string.gsub(fileContents, toReplace, replace, 1)
     if count ~= 1 then
-        error("Failed to replace: "..toReplace)
+        error("Failed to replace: " .. toReplace)
     end
     return fileContents
 end
@@ -257,7 +267,7 @@ function BundleTemplate:processTemplate()
     -- read content
     local inputHandle = io.open(self.template, "rb")
     if not inputHandle then
-        error("File not found: "..self.template)
+        error("File not found: " .. self.template)
     end
     local fileContents = io.input(inputHandle):read("*all")
     inputHandle:close()
