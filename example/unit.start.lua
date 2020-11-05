@@ -1,3 +1,5 @@
+-- Bundled: ${date}
+
 assert(slot1.getElementClass() == "ManualButtonUnit")
 
 -- ensure initial state, set up globals

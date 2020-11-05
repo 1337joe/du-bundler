@@ -18,6 +18,8 @@ The template is basically the json representation of a controller that can be ex
 
 Tags are delimited by `${}` and are formatted as `tagName [: arguments]`, where the tag name is case insensitive and tags that don't have arguments won't have the colon separator or anything listed after the tag name. For example, `${ARGS} : channel *` would resolve as an `ARGS` tag with arguments `channel` and `*`, as might be used to define an event handler in a receiver element.
 
+Example tag usage may be found in the examples directory, or in `TestBundleTemplate.lua`, primarily in the "testTag<tag name>" and "testGetTagReplacement<tag name>" methods.
+
 #### FILE
 
 Format: `${file: directory/system.start.lua}`
@@ -57,3 +59,9 @@ There is no argument necessary for this tag, it simply picks the next sequential
 Format: `${code: <lua goes here>}`
 
 Code can be embedded directly in the template file using the code tag, for the cases where the code for a handler is simple and/or specific to the specific template where it's being used. Closing braces currently cannot be embedded in code blocks because it interferes with the regex matching for the tag itself.
+
+#### DATE
+
+Format: `${date}`
+
+Intended for tagging bundled code by the publish date, this tag simply inserts the current date and time (UTC) in ISO-8601 format.

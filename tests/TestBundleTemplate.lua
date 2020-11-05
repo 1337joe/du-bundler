@@ -610,7 +610,7 @@ function _G.TestBundleTemplate.testReplaceTag()
 end
 
 --- Verify code replacement works properly.
-function _G.TestBundleTemplate.testCodeTag()
+function _G.TestBundleTemplate.testTagCode()
     local bundler = _G.BundleTemplate:new()
     local json, actual, expected
 
@@ -641,6 +641,34 @@ slots.databank2 = slot10
     expected = [[_G.agController:updateState()]]
     actual = bundler:replaceTag(json)
     lu.assertEquals(actual, expected)
+
+    -- braces in code block - fails due to mismatched matching of closing }
+--    json = [[{"code":"${code:local table = {}
+--table[1] = "test"}","filter":{"args":[],"signature":"stop()","slotKey":"${slotKey:unit}"},"key":"${key}"}]]
+--    expected = [[{"code":"local table = {}\ntable[1] = \"test\"","filter":{"args":[],"signature":"stop()","slotKey":"${slotKey:unit}"},"key":"${key}"}]]
+--    actual = bundler:replaceTag(json)
+--    lu.assertEquals(actual, expected)
+end
+
+--- Verify date insertion works properly.
+function _G.TestBundleTemplate.testTagDate()
+    local bundler = _G.BundleTemplate:new()
+    local json, actual, expected
+
+    -- ISO 8601 format
+    local expectedPattern = "%d%d%d%d%-%d%d%-%d%dT%d%d:%d%d:%d%dZ"
+
+    -- simple test
+    json = [[${date}]]
+    expected = expectedPattern
+    actual = bundler:replaceTag(json)
+    lu.assertStrMatches(actual, expected)
+
+    -- in comment line
+    json = [[-- Bundled: ${date}]]
+    expected = "%-%- Bundled: " .. expectedPattern
+    actual = bundler:replaceTag(json)
+    lu.assertStrMatches(actual, expected)
 end
 
 os.exit(lu.LuaUnit.run())

@@ -13,6 +13,7 @@ local TAG_SLOT_NAME = "slotname"
 local TAG_ARGS = "args"
 local TAG_FILE = "file"
 local TAG_CODE = "code"
+local TAG_DATE = "date"
 
 function BundleTemplate:new(templateFile)
     local o = {}
@@ -208,16 +209,19 @@ end
 local TAG_ARGUMENT_PATTERN = "(%S-)%s*:%s*(.*)"
 function BundleTemplate:getTagReplacement(fileContents, tag)
     -- tags without arguments
-    if string.lower(tag) == TAG_KEY then
+    local lowerTag = tag:lower()
+    if lowerTag == TAG_KEY then
         if not self.usedKeys then
             self.usedKeys = BundleTemplate.getUsedHandlerKeys(fileContents)
         end
         return self:getNextHandlerKey()
-    elseif string.lower(tag) == TAG_SLOT_NAME then
+    elseif lowerTag == TAG_SLOT_NAME then
         if not self.slotNumberNameMap then
             self:mapSlotValues(fileContents)
         end
         return self:findSlotName(fileContents)
+    elseif lowerTag == TAG_DATE then
+        return os.date("!%Y-%m-%dT%H:%M:%SZ")
     end
 
     -- tags with arguments
