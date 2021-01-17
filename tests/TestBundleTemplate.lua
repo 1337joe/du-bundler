@@ -173,14 +173,15 @@ function _G.TestBundleTemplate.testMapSlotValues()
     actual = bundler.slotNameNumberMap
     lu.assertEquals(actual, expected)
 
-    -- customized list, cover numbered slots and special slots
+    -- customized list, cover numbered slots (including spaces and underscores) and special slots
     json =
         [[
+        "3":{"name":"al__li_alloy","type":{"events":[],"methods":[]}},
         "8":{"name":"the core","type":{"events":[],"methods":[]}},
         "9":{"name":"container","type":{"events":[],"methods":[]}},
         "-1":{"name":"unit","type":{"events":[],"methods":[]}},
     ]]
-    expected = {container = "9", unit = "-1"}
+    expected = {al__li_alloy = "3", container = "9", unit = "-1"}
     expected["the core"] = "8"
     bundler:mapSlotValues(json)
     actual = bundler.slotNameNumberMap
@@ -497,6 +498,14 @@ function _G.TestBundleTemplate.testFindSlotName()
     bundler.slotNumberNameMap["0"] = "slot1"
     json = [[{"code":"${slotname}","filter":{"args":[],"signature":"start()","slotKey":"0"},"key":"${key}"}]]
     actual = bundler:findSlotName(json)
+    lu.assertEquals(actual, expected)
+
+    -- verify tag is case insensitive
+    expected = "slot1"
+    bundler.slotNumberNameMap = {}
+    bundler.slotNumberNameMap["0"] = "slot1"
+    json = [[{"code":"${slotName}","filter":{"args":[],"signature":"start()","slotKey":"0"},"key":"${key}"}]]
+    actual = bundler:getTagReplacement(json, "slotName")
     lu.assertEquals(actual, expected)
 
     -- basic case: has mapping for negative number

@@ -148,7 +148,7 @@ function BundleTemplate.buildArgs(handlerArgs)
 end
 
 --- Extract slot numbers.
-local SLOT_PATTERN = '"(-?%d)":{"name":"([a-zA-Z0-9 ]+)"'
+local SLOT_PATTERN = '"(-?%d)":{"name":"([a-zA-Z0-9 _]+)"'
 function BundleTemplate:mapSlotValues(jsonText)
     self.slotNameNumberMap = {}
     self.slotNumberNameMap = {}
@@ -164,7 +164,7 @@ local SLOT_KEY_TAG_PATTERN = "${" .. TAG_SLOT_KEY .. "%s*:%s*"
 function BundleTemplate:findSlotName(jsonText)
     for slotCode, slotKey in string.gmatch(jsonText, HANDLER_PATTERN_SLOT_KEY) do
         -- act on first instance that includes the slot name tag in the code block
-        if string.find(slotCode, "${" .. TAG_SLOT_NAME .. "}") then
+        if string.find(slotCode:lower(), "${" .. TAG_SLOT_NAME .. "}") then
             local slotNumber
             local _, slotKeyTagEnd = string.find(string.lower(slotKey), SLOT_KEY_TAG_PATTERN)
             if slotKeyTagEnd then
