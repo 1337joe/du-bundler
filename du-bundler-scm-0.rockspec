@@ -19,7 +19,7 @@ build = {
    copy_directories = {},
    install = {
       bin = {
-         ["du-bundler"] = "du-bundler.lua",
+         ["du-bundler"] = "src/du-bundler.lua",
       }
    },
 }

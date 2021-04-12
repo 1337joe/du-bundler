@@ -7,7 +7,7 @@
 local BundleTemplate = {}
 _G.BundleTemplate = BundleTemplate
 
-local VERSION = "1.0.0"
+local VERSION = "1.0.1"
 
 local TAG_KEY = "key"
 local TAG_SLOT_KEY = "slotkey"

@@ -1,8 +1,8 @@
 package = "du-bundler"
-version = "1.0.0-1"
+version = "1.0.1-1"
 source = {
    url = "git://github.com/1337joe/du-bundler",
-   tag = "v1.0.0",
+   tag = "v1.0.1",
 }
 description = {
    summary = "Utility to combine multiple files into a paste-able Lua configuration for easy import into Dual Universe.",
