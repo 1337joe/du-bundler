@@ -2,12 +2,22 @@
 
 Utility to take code from multiple files and combine them into a paste-able Lua configuration for easy import into Dual Universe.
 
+## Installing
+
+If you'd rather install the latest release instead of cloning the repository this module can be installed through luarocks by simply running:
+
+```sh
+luarocks install du-bundler
+```
+
+This will put the bundle script on your path under the name `du-bundler`. All the following instructions apply, except that the script can be called without specifying the path to it and without the .lua extension.
+
 ## Usage
 
 To run this bundler, simply call the file directly, passing in the template file and (optionally) output file. If no output file is specified the filled in template will be printed to stdout, which may then be piped to `xclip -selection c` on linux or `clip.exe` on windows. For a concrete example, this is how the example template can be run:
 
 ```sh
-./bundleTemplate.lua example/template.json
+./du-bundler.lua example/template.json
 ```
 
 ## Template Format
@@ -18,7 +28,7 @@ The template is basically the json representation of a controller that can be ex
 
 Tags are delimited by `${}` and are formatted as `tagName [: arguments]`, where the tag name is case insensitive and tags that don't have arguments won't have the colon separator or anything listed after the tag name. For example, `${ARGS} : channel *` would resolve as an `ARGS` tag with arguments `channel` and `*`, as might be used to define an event handler in a receiver element.
 
-Example tag usage may be found in the examples directory, or in `TestBundleTemplate.lua`, primarily in the "testTag<tag name>" and "testGetTagReplacement<tag name>" methods.
+Example tag usage may be found in the examples directory, or in `TestBundleTemplate.lua`, primarily in the `testTag<tag name>` and `testGetTagReplacement<tag name>` methods.
 
 #### FILE
 

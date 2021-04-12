@@ -7,6 +7,8 @@
 local BundleTemplate = {}
 _G.BundleTemplate = BundleTemplate
 
+local VERSION = "1.0.0"
+
 local TAG_KEY = "key"
 local TAG_SLOT_KEY = "slotkey"
 local TAG_SLOT_NAME = "slotname"
@@ -294,6 +296,9 @@ if not arg[1] or arg[1] == "--help" or arg[1] == "-h" then
     print("If outputFile is not provided will stream results to stdout.")
     -- TODO better help display, more detailed argument handling
     return
+elseif arg[1] == "--version" then
+    print(VERSION)
+    return;
 end
 
 local inputFile = arg[1]

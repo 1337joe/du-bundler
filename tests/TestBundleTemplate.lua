@@ -7,7 +7,7 @@ local lu = require("luaunit")
 -- NOTE: This expects the tests/results directory to exist before being called.
 local originalArguments = _G.arg
 _G.arg = {"example/template.json", "tests/results/output.json"}
-dofile("bundleTemplate.lua")
+dofile("du-bundler.lua")
 _G.arg = originalArguments
 
 _G.TestBundleTemplate = {}
