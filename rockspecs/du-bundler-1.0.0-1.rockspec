@@ -1,5 +1,5 @@
 package = "du-bundler"
-version = "1.0-0"
+version = "1.0.0-1"
 source = {
    url = "git://github.com/1337joe/du-bundler",
    tag = "v1.0.0",
@@ -19,7 +19,7 @@ build = {
    copy_directories = {},
    install = {
       bin = {
-         ["du-bundler"] = "du-bundler.lua",
+         ["du-bundler"] = "src/du-bundler.lua",
       }
    },
 }
