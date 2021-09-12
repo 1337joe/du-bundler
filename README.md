@@ -56,7 +56,7 @@ This tag converts slot name into slot number, to simplify mapping of code onto n
 
 Format: `${slotname}`
 
-This tag inserts the name of the slot that it's in. TODO more text
+This tag inserts the name of the slot that it's in. Useful for adding awareness of what slot a callback is being called from.
 
 #### KEY
 

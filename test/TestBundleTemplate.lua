@@ -657,6 +657,12 @@ slots.databank2 = slot10
 --    expected = [[{"code":"local table = {}\ntable[1] = \"test\"","filter":{"args":[],"signature":"stop()","slotKey":"${slotKey:unit}"},"key":"${key}"}]]
 --    actual = bundler:replaceTag(json)
 --    lu.assertEquals(actual, expected)
+
+    -- brackets in code
+    json = [[${code:if options[id].toggleInactive then screen.deactivate() end}]]
+    expected = [[if options[id].toggleInactive then screen.deactivate() end]]
+    actual = bundler:replaceTag(json)
+    lu.assertEquals(actual, expected)
 end
 
 --- Verify date insertion works properly.

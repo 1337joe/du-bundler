@@ -52,6 +52,8 @@ function BundleTemplate.sanitizeSubText(text)
     sanitized = string.gsub(sanitized, "%(", "%%(")
     sanitized = string.gsub(sanitized, "%)", "%%)")
     sanitized = string.gsub(sanitized, "%*", "%%*")
+    sanitized = string.gsub(sanitized, "%[", "%%[")
+    sanitized = string.gsub(sanitized, "%]", "%%]")
     return sanitized
 end
 
