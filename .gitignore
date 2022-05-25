@@ -1,5 +1,5 @@
 results/
-*.luacov
+luacov*
 
 # ---> Lua
 # Compiled Lua sources

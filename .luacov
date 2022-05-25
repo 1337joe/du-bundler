@@ -1,0 +1,5 @@
+modules = {
+    ["du-bundler"] = "src/du-bundler.lua"
+}
+runreport = true
+includeuntestedfiles = true

@@ -1,6 +1,7 @@
 # DU Bundler
 
 ![Tests](https://github.com/1337joe/du-bundler/actions/workflows/test.yml/badge.svg?branch=main)
+[![Coverage](https://codecov.io/gh/1337joe/du-bundler/branch/main/graph/badge.svg)](https://codecov.io/gh/1337joe/du-bundler)
 
 Utility to take code from multiple files and combine them into a paste-able Lua configuration for easy import into Dual Universe.
 
