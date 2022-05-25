@@ -3,10 +3,11 @@
 
 local lu = require("luaunit")
 
+-- Execute script to get module in context.
 -- Cache global arguments value, set argument to make call to dofile run properly, then restore global context.
--- NOTE: This expects the tests/results directory to exist before being called.
+-- NOTE: This expects the test/results directory to exist before being called.
 local originalArguments = _G.arg
-_G.arg = {"example/template.json", "tests/results/output.json"}
+_G.arg = {"example/template.json", "test/results/output.json"}
 dofile("src/du-bundler.lua")
 _G.arg = originalArguments
 

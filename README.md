@@ -1,5 +1,7 @@
 # DU Bundler
 
+![Tests](https://github.com/1337joe/du-bundler/actions/workflows/test.yml/badge.svg?branch=main)
+
 Utility to take code from multiple files and combine them into a paste-able Lua configuration for easy import into Dual Universe.
 
 ## Installing
