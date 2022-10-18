@@ -35,11 +35,11 @@ Example tag usage may be found in the examples directory, or in `TestBundleTempl
 
 #### FILE
 
-Format: `${file: directory/system.start.lua}`
+Format: `${file: directory/system.onStart.lua}`
 
 This tag will read in the specified file, sanitize it for json, and embed it in place of the tag. File tags may be used recursively, so you can have a file tag pointing to a CSS file within a lua file, but all tag file paths must be relative to the template location.
 
-Optional arguments, space-separated after file path/name: `${file: directory/system.start.lua argument}`
+Optional arguments, space-separated after file path/name: `${file: directory/system.onStart.lua argument}`
 
  * *minify* Attempt to compress the file specified, primarily by reducing whitespace. Currently supports SVG and CSS files.
 
