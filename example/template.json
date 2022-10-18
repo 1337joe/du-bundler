@@ -15,12 +15,12 @@
         "-3":{"name":"library","type":{"events":[],"methods":[]}}
     },
     "handlers":[
-        {"code":"${file:slot1.pressed1.lua}","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
-        {"code":"${file:slot1.pressed2.lua}","filter":{"args":[],"signature":"pressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
-        {"code":"${file:slot1.released1.lua}","filter":{"args":[],"signature":"released()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
-        {"code":"${file:slot1.released2.lua}","filter":{"args":[],"signature":"released()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
-        {"code":"${file:unit.start.lua}","filter":{"args":[],"signature":"start()","slotKey":"${slotKey:unit}"},"key":"${key}"},
-        {"code":"${file:unit.stop.lua}","filter":{"args":[],"signature":"stop()","slotKey":"${slotKey:unit}"},"key":"${key}"}
+        {"code":"${file:slot1.onPressed1.lua}","filter":{"args":[],"signature":"onPressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
+        {"code":"${file:slot1.onPressed2.lua}","filter":{"args":[],"signature":"onPressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
+        {"code":"${file:slot1.onReleased1.lua}","filter":{"args":[],"signature":"onReleased()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
+        {"code":"${file:slot1.onReleased2.lua}","filter":{"args":[],"signature":"onReleased()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
+        {"code":"${file:unit.onStart.lua}","filter":{"args":[],"signature":"onStart()","slotKey":"${slotKey:unit}"},"key":"${key}"},
+        {"code":"${file:unit.onStop.lua}","filter":{"args":[],"signature":"onStop()","slotKey":"${slotKey:unit}"},"key":"${key}"}
     ],
     "methods":[],
     "events":[]
