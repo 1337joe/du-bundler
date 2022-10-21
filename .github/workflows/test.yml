@@ -18,13 +18,13 @@ jobs:
         luaVersion: [ "5.1", "5.2", "5.3", "5.4" ]
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3.1.0
 
-      - uses: leafo/gh-actions-lua@v9
+      - uses: leafo/gh-actions-lua@v9.1.0
         with:
           luaVersion: ${{ matrix.luaVersion }}
 
-      - uses: leafo/gh-actions-luarocks@v4
+      - uses: leafo/gh-actions-luarocks@v4.3.0
 
       - name: Setup
         run: |
@@ -38,11 +38,11 @@ jobs:
         run: lua -lluacov ./test/TestBundleTemplate.lua -o junit -n test/results/TestBundleTemplate.xml
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@v1.40.0
         if: always()
         with:
           files: "test/results/**/*.xml"
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v3.1.1
         if: ${{ matrix.luaVersion == '5.3' }}
