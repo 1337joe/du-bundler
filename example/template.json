@@ -11,8 +11,10 @@
         "8":{"name":"slot9","type":{"events":[],"methods":[]}},
         "9":{"name":"slot10","type":{"events":[],"methods":[]}},
         "-1":{"name":"unit","type":{"events":[],"methods":[]}},
-        "-2":{"name":"system","type":{"events":[],"methods":[]}},
-        "-3":{"name":"library","type":{"events":[],"methods":[]}}
+        "-2":{"name":"construct","type":{"events":[],"methods":[]}},
+        "-3":{"name":"player","type":{"events":[],"methods":[]}},
+        "-4":{"name":"system","type":{"events":[],"methods":[]}},
+        "-5":{"name":"library","type":{"events":[],"methods":[]}}
     },
     "handlers":[
         {"code":"${file:slot1.onPressed1.lua}","filter":{"args":[],"signature":"onPressed()","slotKey":"${slotKey:slot1}"},"key":"${key}"},
