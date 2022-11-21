@@ -1,4 +1,4 @@
-name: Tests
+name: Test
 
 on: 
   push:
@@ -7,8 +7,26 @@ on:
     branches: [ main ]
 
 jobs:
+  luarocks:
+    name: Test LuaRocks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+
+      - uses: leafo/gh-actions-lua@d84e7d61946edb679210088bc1378c099fde51fe # v9.1.0
+
+      - uses: leafo/gh-actions-luarocks@e65774a6386cb4f24e293dca7fc4ff89165b64c5 # v4.3.0
+
+      - name: Setup
+        run: |
+          luarocks install --only-deps du-bundler-scm-0.rockspec
+
+      - name: Verify LuaRocks config
+        run: luarocks make
+
   test:
-    name: Unit Tests
+    name: Run Unit Tests
     runs-on: ubuntu-latest
 
     strategy:
@@ -38,10 +56,10 @@ jobs:
         run: lua -lluacov ./test/TestBundleTemplate.lua -o junit -n test/results/TestBundleTemplate.xml
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@b9f6c61d965bcaa18acc02d6daf706373a448f02 # tag=v1.40
+        uses: EnricoMi/publish-unit-test-result-action@46ab8d49369d898e381a607119161771bc65c2a6 # v2.2.0
         if: always()
         with:
-          files: "test/results/**/*.xml"
+          junit_files: "test/results/**/*.xml"
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3.1.1
