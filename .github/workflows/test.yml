@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
 
       - uses: leafo/gh-actions-lua@d84e7d61946edb679210088bc1378c099fde51fe # v9.1.0
 
@@ -36,7 +36,7 @@ jobs:
         luaVersion: [ "5.1", "5.2", "5.3", "5.4" ]
 
     steps:
-      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
 
       - uses: leafo/gh-actions-lua@d84e7d61946edb679210088bc1378c099fde51fe # tag=v9.1.0
         with:
@@ -56,7 +56,7 @@ jobs:
         run: lua -lluacov ./test/TestBundleTemplate.lua -o junit -n test/results/TestBundleTemplate.xml
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@46ab8d49369d898e381a607119161771bc65c2a6 # v2.2.0
+        uses: EnricoMi/publish-unit-test-result-action@a3caf02865c0604ad3dc1ecfcc5cdec9c41b7936 # v2.3.0
         if: always()
         with:
           junit_files: "test/results/**/*.xml"
