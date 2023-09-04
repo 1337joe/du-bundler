@@ -56,11 +56,11 @@ jobs:
         run: lua -lluacov ./test/TestBundleTemplate.lua -o junit -n test/results/TestBundleTemplate.xml
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@39ee91a16bb587a6c2b4791d4954cf5299736efd # v2.6.2
+        uses: EnricoMi/publish-unit-test-result-action@283dea176069279a9076e77b548668a8e4f0c31b # v2.9.0
         if: always()
         with:
           junit_files: "test/results/**/*.xml"
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@40a12dcee2df644d47232dde008099a3e9e4f865 # v3.1.2
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
         if: ${{ matrix.luaVersion == '5.3' }}
